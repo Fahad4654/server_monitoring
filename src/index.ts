@@ -8,7 +8,6 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4444;
-console.log(process.env.PORT);
 
 // Configuration
 const CPU_USAGE_THRESHOLD = Number(process.env.CPU_USAGE_THRESHOLD) || 80; // Percentage
@@ -18,12 +17,6 @@ const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD || ""; // Replace with your ap
 const RECIPIENT_EMAIL = process.env.RECIPIENT_EMAIL || ""; // Replace with your recipient email
 const SERVER_NAME = process.env.SERVER_NAME || "localhost";
 
-console.log("CPU_USAGE_THRESHOLD:", process.env.CPU_USAGE_THRESHOLD);
-console.log("RAM_USAGE_THRESHOLD:", process.env.RAM_USAGE_THRESHOLD);
-console.log("EMAIL_ADDRESS:", process.env.EMAIL_ADDRESS);
-console.log("EMAIL_PASSWORD:", process.env.EMAIL_PASSWORD);
-console.log("RECIPIENT_EMAIL:", process.env.RECIPIENT_EMAIL);
-console.log("SERVER_NAME:", process.env.SERVER_NAME);
 
 // Nodemailer transporter
 const transporter = nodemailer.createTransport({
@@ -57,7 +50,7 @@ async function monitorSystem() {
 
       // Send email alert
       await sendEmail(
-        `High System Resource Usage ${SERVER_NAME}`,
+        `High System Resource Usage of ${SERVER_NAME}`,
         alertMessage
       );
     }
