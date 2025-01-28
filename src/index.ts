@@ -60,13 +60,40 @@ async function monitorSystem() {
 }
 
 // Function to send email
+// async function sendEmail(subject: string, message: string) {
+//   try {
+//     const mailOptions = {
+//       from: EMAIL_ADDRESS,
+//       to: RECIPIENT_EMAIL,
+//       subject,
+//       text: message,
+//     };
+
+//     await transporter.sendMail(mailOptions);
+//     console.log("Alert email sent successfully");
+//   } catch (error) {
+//     console.error("Error sending email:", error);
+//   }
+// }
+
 async function sendEmail(subject: string, message: string) {
   try {
     const mailOptions = {
       from: EMAIL_ADDRESS,
       to: RECIPIENT_EMAIL,
       subject,
-      text: message,
+      text: message, // Fallback for email clients that don't support HTML
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #333;">
+          <h1 style="color: red;">Alert!!</h1>
+          <h2 style="color: red;">High System Resource Usage</h2>
+          <p>
+            <strong>CPU Usage:</strong> ${message.split('\n')[1]}<br>
+            <strong>RAM Usage:</strong> ${message.split('\n')[2]}<br>
+          </p>
+          <p>Please take immediate action to address this issue.</p>
+        </div>
+      `,
     };
 
     await transporter.sendMail(mailOptions);
