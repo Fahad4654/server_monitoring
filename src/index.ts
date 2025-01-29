@@ -4,6 +4,7 @@ import express from "express";
 import nodemailer from "nodemailer";
 import si from "systeminformation";
 import dotenv from "dotenv";
+import { error } from "console";
 dotenv.config();
 
 const app = express();
@@ -16,7 +17,6 @@ const EMAIL_ADDRESS = process.env.EMAIL_ADDRESS || ""; // Replace with your emai
 const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD || ""; // Replace with your app-specific password
 const RECIPIENT_EMAIL = process.env.RECIPIENT_EMAIL || ""; // Replace with your recipient email
 const SERVER_NAME = process.env.SERVER_NAME || "localhost";
-
 
 // Nodemailer transporter
 const transporter = nodemailer.createTransport({
@@ -88,8 +88,8 @@ async function sendEmail(subject: string, message: string) {
           <h1 style="color: red;">Alert!!</h1>
           <h2 style="color: red;">High System Resource Usage</h2>
           <p>
-            <strong>CPU Usage:</strong> ${message.split('\n')[1]}<br>
-            <strong>RAM Usage:</strong> ${message.split('\n')[2]}<br>
+            <strong>CPU Usage:</strong> ${message.split("\n")[1]}<br>
+            <strong>RAM Usage:</strong> ${message.split("\n")[2]}<br>
           </p>
           <p>Please take immediate action to address this issue.</p>
         </div>
@@ -111,32 +111,43 @@ app.get("/", (req, res) => {
   res.send("System Monitoring Service is running!");
 });
 
+const API_KEY = process.env.API_KEY || '123456';
+app.get("/status", async (req, res) => {
+  // console.log("/status");
 
-app.get('/status', async (req, res) => {
-    console.log('/status')
+  if (API_KEY == req.headers.api_key) {
     try {
       const cpuData = await si.currentLoad();
       const memoryData = await si.mem();
-  
+
       const cpuUsage = cpuData.currentLoad; // Current CPU load percentage
       const ramUsage = (memoryData.active / memoryData.total) * 100; // RAM usage percentage
-  
+
       res.json({
         server: SERVER_NAME,
         cpuUsage: `${cpuUsage.toFixed(2)}%`,
         ramUsage: `${ramUsage.toFixed(2)}%`,
-        status: 'ok',
+        status: "ok",
       });
     } catch (error: unknown) {
       // Type assertion to tell TypeScript that the error is an instance of Error
       if (error instanceof Error) {
-        res.status(500).json({ error: 'Failed to retrieve system metrics', details: error.message });
+        res
+          .status(500)
+          .json({
+            error: "Failed to retrieve system metrics",
+            details: error.message,
+          });
       } else {
         // If it's not an instance of Error, return a general error
-        res.status(500).json({ error: 'An unknown error occurred' });
+        res.status(500).json({ error: "An unknown error occurred" });
       }
     }
-  });
+  }
+  else{
+    res.status(400).json({error: "Unauthorized"})
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://${SERVER_NAME}:${PORT}`);
